@@ -309,14 +309,43 @@ verify()
 # No sanity checking is performed by the script but there are limited sanity
 # checks in duplicity itself.
 #
-# Example restore "/home/memes/projects" "/home/memes/from_backup" 
-#                 restores the latest files in /home/memes/projects and sub-dirs
-#                 to /home/memes/from_backup
-# Example restore -t 3D --file-to-restore foo/bar /home/memes /home/memes/from_backup
-#                 restores the file /home/memes/foo/bar to /home/memes/from_backup/bar as it was 3 days ago
+# Note: since the backup starts at root, it is necessary to omit the leading /
+# from the path of the file or directory to restore.
+#
+# Note: to restore the contents of a folder, end the file path with a trailing
+# / and duplicity will restore the files and folders within the directory to
+# the specified restore folder, but note that the folder itself will not be
+# created. 
+#
+# Example restore home/memes/projects/ /home/memes/from_backup 
+#  restores the latest files in /home/memes/projects and sub-dirs to
+#  /home/memes/from_backup but does not create the projects folder, just the
+#  contents of it 
+#
+# Example restore -t 3D home/memes/foo/bar /home/memes/from_backup
+#  restores the file /home/memes/foo/bar to /home/memes/from_backup/bar as it
+#  was 3 days ago
 restore()
 {
-    do_duplicity restore ${S3_BUCKET_PREFIX}/$(${HOSTNAME} -s) $*
+    local args=
+    local paths=
+    while [ -n "$1" ]; do
+	case "$1" in
+	    -*)
+		args="${args} $1 $2"
+		shift
+		shift
+		;;
+	    *)
+		if [ -z "${paths}" ]; then
+		    paths="--file-to-restore $1"
+		else
+		    paths="${paths} $1"
+		fi
+		shift
+	esac
+    done
+    do_duplicity restore ${args} ${S3_BUCKET_PREFIX}/$(${HOSTNAME} -s) ${paths}
     local retval=$?
     [ ${retval} -eq 0 ] || \
 	warn "restore: duplicity returned error code: $?"
