@@ -1,0 +1,7 @@
+# Example rc file for s3backup.sh using single GPG key
+AWS_ACCESS_KEY_ID=_replace_with_real_aws_key_
+AWS_SECRET_ACCESS_KEY=_replace_with_real_aws_secret_key_
+S3_BUCKET_PREFIX="s3+http://bucket/prefix"
+# Use the same key for signing and encryption
+SIGN_KEY=D69967E1
+ENCRYPT_KEY=D69967E1

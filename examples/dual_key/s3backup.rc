@@ -1,0 +1,7 @@
+# Example  rc file for s3backup.sh using different signing and encryption keys
+AWS_ACCESS_KEY_ID=_replace_with_real_aws_key_
+AWS_SECRET_ACCESS_KEY=_replace_with_real_aws_secret_key_
+S3_BUCKET_PREFIX="s3+http://yourbucket/file/path/like/prefix"
+# Note that the sign and encrypt keys are different
+SIGN_KEY=9EC47665
+ENCRYPT_KEY=E1ADCDE1

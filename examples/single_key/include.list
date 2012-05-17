@@ -1,0 +1,26 @@
+- **/lost+found
+- **/.cache
+- **/.config/chromium*
+- **/.dbus
+- **/.dvdcss
+- **/.emacs.d
+- **/.fontconfig
+- **/.git
+- **/.gnupg
+- **/.gvfs
+- **/.mozilla
+- **/.ssh
+- **/.thumbnails
+/boot
+- /etc/network/run/**
+/etc
+/home
+- /opt/google
+/opt
+/root
+/usr/local/**
+/var/backups
+/var/local/backups/*s3backup.sh.backup*
+/var/local/backups/include.list
+/var/local/backups/s3backup.rc
+/var/local/backups/s3backup.sh
