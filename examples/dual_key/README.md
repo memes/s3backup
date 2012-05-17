@@ -45,7 +45,7 @@ Cron automatic backup
 3.  Modify s3backup.rc to specify which key to use for signing and
     encryption.
 
-    See dual key example [configuration][3] for details.
+    See dual key example configuration for details.
 
 4.  Create an include/exclude list to match the files to backup; if
     not present then the script will backup all files in /home. It is
@@ -53,7 +53,7 @@ Cron automatic backup
     contain the duplicity local copies and temporary files are
     excluded from the backup.
 
-    See example [include list][4] for details.
+    See example include list for details.
 
 5.  Create a cron entry for the backup. For example, assuming the
     s3backup.sh is in /var/local/backups/, this snippet could be
@@ -66,5 +66,3 @@ Cron automatic backup
 
 [1]: http://github.com/memes/s3backup/wiki/Dual%20Key%20Strategy
 [2]: http://github.com/memes/s3backup "s3backup git repository"
-[3]: s3backup.rc
-[4]: include.list

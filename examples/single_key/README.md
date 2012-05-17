@@ -35,7 +35,7 @@ Cron automatic backup
     then it is not necessary to do this step but it will help if you
     manage multiple machines with different keys.
 
-    See single key example [configuration][2] for details.
+    See single key example configuration for details.
 
 4.  Create an include/exclude list to match the files to backup; if
     not present then the script will backup all files in /home. It is
@@ -43,7 +43,7 @@ Cron automatic backup
     contain the duplicity local copies and temporary files are
     excluded from the backup.
 
-    See example [include list][3] for details.
+    See example include list for details.
 
 5.  Create a cron entry for the backup. For example, assuming the
     s3backup.sh is in /var/local/backups/, this snippet could be
@@ -55,5 +55,3 @@ Cron automatic backup
         03 23 * * * root test -x /var/local/backups/s3backup.sh && /var/local/backups/s3backup.sh 2>&1 | mail -s "Daily backup: $(hostname -s)" ${MAILTO}
 
 [1]: http://github.com/memes/s3backup "s3backup git repository"
-[2]: s3backup.rc
-[3]: include.list
