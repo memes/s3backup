@@ -66,7 +66,7 @@ BASENAME=${BASENAME:-$(which basename)}
 DIRNAME=${DIRNAME:-$(which dirname)}
 
 # Hostname executable
-HOSTNAME=${HOSTNAME:-$(which hostname)}
+HOSTNM=${HOSTNM:-$(which hostname)}
 
 # Grep executable
 GREP=${GREP:-$(which grep)}
@@ -97,7 +97,7 @@ ACL_PKG_DAYS_TO_KEEP=${ACL_PKG_DAYS_TO_KEEP:-7}
 DUPLICITY=${DUPLICITY:-$(which duplicity)}
 
 # Duplicity options to use; see duplicity manual for options
-DUPLICITY_OPTS=${DUPLICITY_OPTS:-"--s3-use-new-style -vERROR --name=$(${HOSTNAME} -s)"}
+DUPLICITY_OPTS=${DUPLICITY_OPTS:-"--s3-use-new-style -vERROR --name=$(${HOSTNM} -s)"}
 
 # Temporary directory for duplicity files; defaults to $PREP_BACKUP_DIR
 DUPLICITY_TEMP_DIR=${DUPLICITY_TEMP_DIR:-${PREP_BACKUP_DIR}}
@@ -143,8 +143,8 @@ check()
 	missing_env="${missing_env}${missing_env:+, }\$BASENAME"
     [ -z "${DIRNAME}" ] && \
 	missing_env="${missing_env}${missing_env:+, }\$DIRNAME"
-    [ -z "${HOSTNAME}" ] && \
-	missing_env="${missing_env}${missing_env:+, }\$HOSTNAME"
+    [ -z "${HOSTNM}" ] && \
+	missing_env="${missing_env}${missing_env:+, }\$HOSTNM"
     [ -z "${GREP}" ] && \
 	missing_env="${missing_env}${missing_env:+, }\$GREP"
     [ -z "${PREP_BACKUP_DIR}" ] && \
@@ -171,8 +171,8 @@ check()
 	missing_exec="${missing_exec}${missing_exec:+, }${BASENAME}"
     [ -x "${DIRNAME}" ] || \
 	missing_exec="${missing_exec}${missing_exec:+, }${DIRNAME}"
-    [ -x "${HOSTNAME}" ] || \
-	missing_exec="${missing_exec}${missing_exec:+, }${HOSTNAME}"
+    [ -x "${HOSTNM}" ] || \
+	missing_exec="${missing_exec}${missing_exec:+, }${HOSTNM}"
     [ -x "${GREP}" ] || \
 	missing_exec="${missing_exec}${missing_exec:+, }${GREP}"
     [ -n "${missing_exec}" ] && \
@@ -260,7 +260,7 @@ do_duplicity()
 pre_backup_clean()
 {
     # Cleanup any incomplete backups
-    do_duplicity cleanup --force ${S3_BUCKET_PREFIX}/$(${HOSTNAME} -s)
+    do_duplicity cleanup --force ${S3_BUCKET_PREFIX}/$(${HOSTNM} -s)
     local retval=$?
     [ ${retval} -eq 0 ] || \
 	warn "pre_backup_clean: duplicity returned error code: $?"
@@ -273,7 +273,7 @@ post_backup_clean()
 {
     [ -n "${BACKUP_FULL_COPIES}" ] && \
 	do_duplicity remove-all-but-n-full ${BACKUP_FULL_COPIES} --force \
-            ${S3_BUCKET_PREFIX}/$(${HOSTNAME} -s)
+            ${S3_BUCKET_PREFIX}/$(${HOSTNM} -s)
     local retval=$?
     [ ${retval} -eq 0 ] || \
 	warn "post_backup_clean: duplicity returned error code: $?"
@@ -289,7 +289,7 @@ backup()
     # Do the backup
     do_duplicity incremental \
 	${BACKUP_FULL_TIMESPEC:+"--full-if-older-than=${BACKUP_FULL_TIMESPEC}"} \
-        / ${S3_BUCKET_PREFIX}/$(${HOSTNAME} -s) $*
+        / ${S3_BUCKET_PREFIX}/$(${HOSTNM} -s) $*
     [ $? -eq 0 ] || error "backup: duplicity returned error code: $?"
     post_backup_clean
 }
@@ -298,7 +298,7 @@ backup()
 # listed even if rest of duplicity calls use a lower verbosity
 verify()
 {
-    do_duplicity verify -v4 ${S3_BUCKET_PREFIX}/$(${HOSTNAME} -s) / $*
+    do_duplicity verify -v4 ${S3_BUCKET_PREFIX}/$(${HOSTNM} -s) / $*
     local retval=$?
     [ ${retval} -eq 0 ] || \
 	warn "verify: duplicity returned error code: $?"
@@ -345,7 +345,7 @@ restore()
 		shift
 	esac
     done
-    do_duplicity restore ${args} ${S3_BUCKET_PREFIX}/$(${HOSTNAME} -s) ${paths}
+    do_duplicity restore ${args} ${S3_BUCKET_PREFIX}/$(${HOSTNM} -s) ${paths}
     local retval=$?
     [ ${retval} -eq 0 ] || \
 	warn "restore: duplicity returned error code: $?"
