@@ -49,6 +49,9 @@ COMPRESS_EXEC=${COMPRESS_EXEC:-$(which bzip2)}
 # Volume of duplicity files in Mb; defaults to 250Mb
 DUPLICITY_VOLSIZE=${DUPLICITY_VOLSIZE:-250}
 
+# Awk executable to use
+AWK=${AWK:-$(which awk)}
+
 # Find executable to use
 FIND=${FIND:-$(which find)}
 
@@ -135,6 +138,8 @@ check()
 	missing_env="${missing_env}${missing_env:+, }\$COMPRESS_EXEC"
     [ -z "${DUPLICITY}" ] && \
 	missing_env="${missing_env}${missing_env:+, }\$DUPLICITY"
+    [ -z "${AWK}" ] && \
+	missing_env="${missing_env}${missing_env:+, }\$AWK"
     [ -z "${FIND}" ] && \
 	missing_env="${missing_env}${missing_env:+, }\$FIND"
     [ -z "${READLINK}" ] && \
@@ -163,6 +168,8 @@ check()
 	missing_exec="${missing_exec}${missing_exec:+, }${COMPRESS_EXEC}"
     [ -x "${DUPLICITY}" ] || \
 	missing_exec="${missing_exec}${missing_exec:+, }${DUPLICITY}"
+    [ -x "${AWK}" ] || \
+	missing_exec="${missing_exec}${missing_exec:+, }${AWK}"
     [ -x "${FIND}" ] || \
 	missing_exec="${missing_exec}${missing_exec:+, }${FIND}"
     [ -x "${READLINK}" ] || \
@@ -217,7 +224,10 @@ prep()
     if [ -n "${GETFACL}" -a -x "${GETFACL}" ]; then
 	[ -s "${backupdir}/acl.${suffix}" ] && \
 	    rm -f "${backupdir}/acl.${suffix}"
-	${FIND} -H / | ${GREP} -Ev '^/(dev|media|mnt|proc|run|sys|tmp)/' | \
+	# Get ACLs on filesystems mounted from fstab only
+	# - should avoid runtime mounts
+	${AWK} '/^[^#].*[12]$/ {print $2}' /etc/fstab | \
+	    while read mp; do ${FIND} -H ${mp} -xdev; done | \
 	    ${GETFACL} -pn - > ${backupdir}/acl.${suffix} 2>/dev/null
 	[ -s "${backupdir}/acl.${suffix}" ] && \
 	    ${COMPRESS_EXEC} ${backupdir}/acl.${suffix}
@@ -237,7 +247,7 @@ do_duplicity()
 {
     local include_glob_arg=
     [ -n "${BACKUP_INCLUDE_LIST}" -a -r "${BACKUP_INCLUDE_LIST}" ] && \
-	include_glob_arg="--include-globbing-filelist=${BACKUP_INCLUDE_LIST}"
+	include_glob_arg="--include-filelist=${BACKUP_INCLUDE_LIST}"
     ${ENV_EXEC} AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
         AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
         GNUPGHOME="${GNUPGHOME}" \
